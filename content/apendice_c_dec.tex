@@ -1,0 +1,135 @@
+% =====================================================================
+% apendice_c_dec.tex -- Apendice C: discussao sobre condicoes alem da
+% base de projeto (Design Extension Conditions, DEC), adaptada da
+% analise preparada para o documento de referencia deste projeto
+% (claude/estrutura-nureg-1537.md), condensada e reescrita em prosa de
+% apendice, e complementada com a verificacao de que o ISG-NUREG-1537 Staff
+% Guidance NPR-ISG-2011-002 tambem nao aborda o tema.
+% =====================================================================
+\nusecbreak{C}{Ap\^endice C}
+\hypertarget{apC}{}%
+\section*{Ap\^endice C -- Condi\c{c}\~oes Al\'em da Base de Projeto (DEC)}
+\addcontentsline{toc}{section}{Ap\^endice C -- Condi\c{c}\~oes Al\'em da Base de Projeto (DEC)}
+\label{sec:apendice-c}
+
+Este ap\^endice registra, para refer\^encia do requerente e do \'org\~ao
+regulador, por que a estrutura de an\'alise de acidentes deste RPAS --
+herdada da NUREG-1537 -- n\~ao inclui uma categoria formal de
+\emph{Design Extension Conditions} (DEC), e discute at\'e que ponto essa
+aus\^encia \'e relevante para um reator multiprop\'osito de maior porte
+como o RMB.
+
+\begin{observacao}{PTs e MTs associadas a BDB (Além da Base de Projeto)}
+Neste item iremos discutir os Pareceres Técnicos da ANSN e as  Memoriais Técnicas da CNEN que trataram deste assunto em outras versões do RPAS.
+\end{observacao}
+
+\subsection*{O que a NUREG-1537 efetivamente prev\^e}
+
+A NUREG-1537 estrutura toda a sua an\'alise de acidentes em torno do
+\textbf{Acidente Hipot\'etico M\'aximo} (\emph{Maximum Hypothetical
+Accident}, MHA), definido no Cap\'itulo~6 (Caracter\'isticas de Seguran\c{c}a
+Projetadas) e analisado quantitativamente no Cap\'itulo~13 (An\'alise de
+Acidentes) deste RPAS. Trata-se de um conceito estruturalmente distinto
+do que se tornou padr\~ao para reatores de pot\^encia: um \'unico
+cen\'ario, deliberadamente n\~ao-probabil\'istico, escolhido por envelope
+de consequ\^encias -- a pr\'opria norma registra que, como o MHA n\~ao se
+espera que ocorra, o cen\'ario n\~ao precisa ser inteiramente cre\'ivel.
+N\~ao h\'a \'arvore de eventos iniciadores, an\'alise de frequ\^encia ou
+espectro de cen\'arios graduados por probabilidade -- h\'a um cen\'ario
+\'unico, avaliado contra os mesmos crit\'erios de dose do 10~CFR
+Parte~20 e Parte~100 usados para acidentes-base de projeto comuns. Na
+NUREG-1537, portanto, n\~ao existe uma categoria de eventos com crit\'erio
+de aceita\c{c}\~ao mais permissivo para al\'em do MHA: ele \'e, ao mesmo
+tempo, o pior cen\'ario considerado e o teto de rigor da an\'alise.
+
+\subsection*{De onde vem o DEC, e por que n\~ao est\'a na NUREG-1537}
+
+O conceito de \emph{Design Extension Conditions} \'e substancialmente
+mais recente e nasceu em outro contexto regulat\'orio: o padr\~ao da IAEA
+SSR-2/1 (\emph{Safety of Nuclear Power Plants: Design}) \citep{iaeassr21},
+formalizado por volta de 2012 e refor\c{c}ado diretamente pelo acidente de Fukushima
+(2011) -- quinze anos depois da publica\c{c}\~ao da NUREG-1537 (1996). O
+DEC se divide em duas categorias: \textbf{DEC~A}, condi\c{c}\~oes sem
+degrada\c{c}\~ao significativa do combust\'ivel (p.ex., perda de energia
+externa prolongada, perda do sistema de remo\c{c}\~ao de calor residual),
+e \textbf{DEC~B}, condi\c{c}\~oes com fus\~ao do n\'ucleo ou acidentes
+severos (p.ex., LOCA combinado com perda total de energia, falha de
+cont\^enc\~ao por \emph{bypass}). Estruturalmente, o DEC ocupa os
+n\'iveis~4 e~5 da defesa em profundidade -- al\'em da base de projeto,
+mas analisado com m\'etodos \emph{best-estimate} para verificar que as
+libera\c{c}\~oes radiol\'ogicas permanecem dentro de limites aceit\'aveis,
+tipicamente mais permissivos que os da base de projeto. A aus\^encia do
+DEC na NUREG-1537 n\~ao \'e uma lacuna: \'e anacronismo. A norma \'e de
+1996; o arcabou\c{c}o DEC n\~ao existia como categoria regulat\'oria
+consolidada at\'e quase duas d\'ecadas depois, e nasceu especificamente
+para reatores de pot\^encia.
+
+Mesmo a atualiza\c{c}\~ao p\'os-Fukushima do pr\'oprio NRC n\~ao adotou a
+terminologia DEC: a regra 10~CFR~50.155 \citep{cfr10p50155}, finalizada em 2019, trata de
+mitiga\c{c}\~ao de eventos al\'em da base de projeto sob a expressão
+\emph{beyond-design-basis events} (BDBE) -- n\~ao ``DEC'' --, e seu
+escopo \'e explicitamente limitado a licen\c{c}as de opera\c{c}\~ao de
+reatores de pot\^encia e licen\c{c}as combinadas sob a Parte~52. Reatores
+n\~ao-de-pot\^encia permanecem fora do escopo mesmo na regulamenta\c{c}\~ao
+americana mais recente e p\'os-Fukushima.
+
+\subsection*{Verifica\c{c}\~ao quanto ao ISG-NUREG-1537}
+
+O texto do NPR-ISG-2011-002 -- que complementa a NUREG-1537 para
+instala\c{c}\~oes de produ\c{c}\~ao de radiois\'otopos e reatores
+homog\^eneos aquosos, e que \'e a refer\^encia de ISG-NUREG-1537 adotada neste
+RPAS -- foi verificado diretamente quanto a esse tema: n\~ao cont\'em
+nenhuma ocorr\^encia de ``design extension'', ``DEC'' ou
+``beyond-design-basis'' em sentido t\'ecnico equivalente. O ISG-NUREG-1537
+amplia significativamente os Cap\'itulos~4 (Descri\c{c}\~ao do Reator),
+5~(Sistemas de Refrigera\c{c}\~ao), 6~(Caracter\'isticas de Seguran\c{c}a
+Projetadas), 7~(Instrumenta\c{c}\~ao), 12~(Conduta de Opera\c{c}\~oes),
+13~(An\'alise de Acidentes) e 14~(Especifica\c{c}\~oes T\'ecnicas) da
+NUREG-1537, mas mant\'em o MHA como o \'unico cen\'ario-teto de an\'alise
+de acidentes, sem introduzir uma categoria adicional al\'em dele. A
+conclus\~ao da se\c{c}\~ao anterior, portanto, permanece v\'alida tamb\'em
+sob o ISG-NUREG-1537: nem a norma-base nem seu complemento vigente exigem ou
+estruturam uma an\'alise de DEC para este RPAS.
+
+\subsection*{Rela\c{c}\~ao com o quadro internacional (IAEA/WENRA)}
+
+Fora do arcabou\c{c}o norte-americano, o quadro \'e menos uniforme. A
+WENRA (\emph{Western European Nuclear Regulators Association}), no
+documento \emph{``Safety Reference Levels for Existing Research
+Reactors''} (novembro de 2020) \citep{wenrasrl2020}, exige explicitamente an\'alise de DEC
+para reatores de pesquisa como parte da defesa em profundidade,
+reproduzindo a divis\~ao DEC~A/DEC~B adaptada para instala\c{c}\~oes de
+menor escala, com refer\^encia ao padr\~ao da IAEA SSR-3 (\emph{``Safety
+of Research Reactors''}, 2016) \citep{iaeassr3}. Fica registrada aqui uma limita\c{c}\~ao
+de verifica\c{c}\~ao: n\~ao foi poss\'ivel confirmar diretamente, a partir
+do texto integral da pr\'opria SSR-3, se \'e ela que introduz a
+terminologia DEC para reatores de pesquisa ou se a WENRA adapta um
+conceito da SSR-3 sem reproduzir exatamente os mesmos termos -- este
+ponto deve ser reverificado antes de qualquer refer\^encia normativa
+direta \`a SSR-3 neste RPAS.
+
+\subsection*{Implica\c{c}\~ao para o RMB}
+
+A NUREG-1537, como norma-base deste Cap\'itulo~1, n\~ao pede nem
+estrutura uma an\'alise de DEC -- seu arcabou\c{c}o de acidentes \'e o
+MHA, sem mecanismo textual para incorporar o DEC sem reescrever partes
+substanciais da l\'ogica do Cap\'itulo~13, e o ISG-NUREG-1537 n\~ao altera esse
+quadro. Isso n\~ao torna o tema irrelevante para um reator multiprop\'osito
+de maior porte como o RMB: h\'a evid\^encia de que reguladores europeus
+(WENRA) j\'a consideram DEC aplic\'avel a reatores de pesquisa, n\~ao
+apenas a reatores de pot\^encia, o que sugere que a exig\^encia \'e
+tamb\'em fun\c{c}\~ao de porte e invent\'ario radiol\'ogico da
+instala\c{c}\~ao, e n\~ao estritamente da categoria regulat\'oria
+``pot\^encia vs. n\~ao-de-pot\^encia''. Com pot\^encia e invent\'ario de
+produtos de fiss\~ao substancialmente maiores que os reatores de pesquisa
+``cl\'assicos'' que a NUREG-1537 foi originalmente pensada para cobrir, o
+RMB pode estar em posi\c{c}\~ao intermedi\'aria em que vale a pena avaliar,
+junto ao \'org\~ao regulador nacional, se uma considera\c{c}\~ao adicional
+de tipo DEC -- mesmo que n\~ao formalmente exigida pelo formato
+NUREG-1537 nem pelo ISG-NUREG-1537 -- fortalece o caso de seguran\c{c}a, sem que
+isso signifique abandonar o MHA como o requisito m\'inimo que a norma de
+fato exige. Trata-se de uma pondera\c{c}\~ao de engenharia e de
+estrat\'egia regulat\'oria a ser resolvida com o \'org\~ao regulador
+nacional, n\~ao de uma conclus\~ao que os documentos-fonte permitam
+extrair de forma definitiva; a discuss\~ao quantitativa do MHA em si
+permanece integralmente no Cap\'itulo~13 deste RPAS.

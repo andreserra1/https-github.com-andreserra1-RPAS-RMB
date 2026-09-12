@@ -1,0 +1,501 @@
+% =====================================================================
+% nureg-style.sty
+% Estilo visual inspirado nos documentos regulatorios do NRC:
+%   - NUREG-1537 (Format and Content / Standard Review Plan) - USNRC
+%   - AP1000 Design Control Document (DCD), Tier 2 - Westinghouse/NRC
+%
+% Este pacote NAO reproduz nenhum brasao ou selo oficial do governo dos
+% EUA; apenas imita convencoes tipograficas publicas (numeracao de
+% pagina por capitulo, cabecalhos/rodapes com titulo de secao e
+% revisao, tabelas em grade) amplamente usadas por requerentes de
+% licenciamento nuclear em todo o mundo ao redigir seus proprios SAR/FSAR.
+% =====================================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{nureg-style}[2026/09/10 NUREG/AP1000-style report style]
+
+% ---------------------------------------------------------------------
+% Fontes: familia Times-like, proxima da usada em NUREG/DCD impressos
+% ---------------------------------------------------------------------
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{mathptmx}
+\RequirePackage{helvet}
+\RequirePackage{microtype}
+
+% Espacamento de linha ligeiramente maior que o padrao (leitura mais
+% confortavel em texto corrido longo, estilo relatorio) + fonte em
+% 12pt (definida via opcao da classe em main.tex)
+\RequirePackage{setspace}
+\setstretch{1.32}
+
+% ---------------------------------------------------------------------
+% Idioma / hifenizacao (documento em portugues)
+% ---------------------------------------------------------------------
+\RequirePackage[brazil]{babel}
+
+% ---------------------------------------------------------------------
+% Layout de pagina - margens tipicas de SAR/DCD (encadernacao em
+% fichario de 3 furos, folha carta)
+% ---------------------------------------------------------------------
+\RequirePackage[letterpaper,top=2.4cm,bottom=2.5cm,left=3.0cm,right=2.3cm,headheight=14pt,headsep=10pt,footskip=30pt]{geometry}
+
+% ---------------------------------------------------------------------
+% Numeracao de pagina por capitulo: "1-1", "1-2", ... "2-1", ...
+% (identica a convencao usada na propria NUREG-1537 e em FSAR/DCD)
+% ---------------------------------------------------------------------
+\RequirePackage{chappg}
+% chappg intercepta \mainmatter automaticamente (opcao "auto", padrao)
+% e redefine \thepage para "<capitulo>-<pagina>", ex.: 1-1, 1-2, 2-1 ...
+
+% ---------------------------------------------------------------------
+% Cores institucionais neutras (nao usa o azul/dourado do selo NRC;
+% paleta neutra de "documento tecnico regulatorio")
+% ---------------------------------------------------------------------
+\RequirePackage{xcolor}
+\RequirePackage{colortbl}
+\definecolor{nurule}{RGB}{20,30,45}
+\definecolor{nugray}{RGB}{90,90,90}
+\definecolor{nutablehead}{RGB}{225,230,236}
+
+% ---------------------------------------------------------------------
+% Cabecalho / rodape no formato exigido pelo Cliente (CNEN). Versao
+% enxuta (revisada a pedido do requerente: a caixa/tabela do cabecalho
+% original, com quadro "CNEN RMB" + 4 colunas + linha de titulos,
+% ficou visualmente pesada). O cabecalho passa a mostrar apenas o
+% codigo do documento e a secao/apendice corrente, no mesmo registro
+% discreto (fonte pequena, cinza, sem caixa) ja usado no rodape. O
+% rodape mantem o aviso de reproducao e passa a numerar as paginas
+% "N de M" dentro de cada secao/apendice (nao mais de forma cumulativa
+% no capitulo), com secoes e apendices sempre iniciando em pagina nova
+% -- ver \nusecbreak mais abaixo.
+% ---------------------------------------------------------------------
+\RequirePackage{fancyhdr}
+\RequirePackage{multirow}
+\RequirePackage{atbegshi}
+% raggedbottom evita que paginas quase cheias (como o Sumario) sejam
+% esticadas ate preencher exatamente \textheight -- esse esticamento
+% (padrao de \flushbottom, herdado da classe book/extbook) pode empurrar
+% um resto de espaco em branco, sem texto visivel, para uma pagina extra.
+\raggedbottom
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{nugray}\hrule height \headrulewidth}
+\renewcommand{\footrule}{\color{nugray}\hrule height \footrulewidth \vskip -0.4pt}
+
+\newcommand{\docshorttitle}{PROPOSTA -- CAP\'ITULO 1}
+\newcommand{\docrevision}{Rev.~0 (Minuta de Trabalho)}
+\newcommand{\docdate}{Setembro 2026}
+\newcommand{\doccode}{RMB-N00-00-LN-G-7240-RA-001}
+\newcommand{\doctitlefull}{Relat\'orio Preliminar de An\'alise de Seguran\c{c}a (RPAS) do Reator RMB}
+% Revisao da secao corrente: valor unico simplificado (a minuta nao
+% controla revisao independente por secao); ajuste aqui se necessario.
+% Mantido igual a "REV. B" usado na capa (foto_capa.tex).
+\newcommand{\docsecrev}{B}
+
+% \nuchaptitle / \nusectitle sao preenchidos automaticamente por
+% \chaptermark / \sectionmark (chamados internamente pelo LaTeX a cada
+% \chapter{...} / \section{...}) -- nao exigem alterar cap1.tex.
+\newcommand{\nuchaptitle}{}
+\newcommand{\nusectitle}{}
+\renewcommand{\chaptermark}[1]{\gdef\nuchaptitle{#1}\markboth{\MakeUppercase{CAP\'ITULO \thechapter\ -- #1}}{}}
+\renewcommand{\sectionmark}[1]{\gdef\nusectitle{#1}}
+
+% ---------------------------------------------------------------------
+% \nusecbreak{id}{rotulo}: marca o inicio de uma nova secao/apendice/
+% anexo. Sempre comeca em pagina nova, reinicia a contagem de paginas
+% "N de M" a partir dela, e atualiza o rotulo mostrado no cabecalho.
+% "id" e uma chave curta e estavel (ex. "1.1", "A", "anexo1"), usada
+% apenas para gravar/ler o total de paginas no .aux (mesma logica de
+% \label/\pageref: o total so fica correto apos uma nova compilacao).
+% "rotulo" e o texto exibido no cabecalho (ex. "Se\c{c}\~ao 1.1",
+% "Ap\^endice A").
+% ---------------------------------------------------------------------
+\newcounter{secpg}
+\newcommand{\nucursecid}{}
+\newcommand{\nucurseclabel}{}
+\newcommand{\nuwritesectotal}{%
+  \ifx\nucursecid\@empty\else
+    \immediate\write\@auxout{\string\nusectotal{\nucursecid}{\thesecpg}}%
+  \fi
+}
+\newcommand{\nusectotal}[2]{\expandafter\gdef\csname nusectot@#1\endcsname{#2}}
+\newcommand{\nugetsectotal}[1]{%
+  \expandafter\ifx\csname nusectot@#1\endcsname\relax ?%
+  \else\csname nusectot@#1\endcsname\fi
+}
+\newcommand{\nusecbreak}[2]{%
+  \nuwritesectotal
+  \clearpage
+  \setcounter{secpg}{1}%
+  \gdef\nucursecid{#1}%
+  \gdef\nucurseclabel{#2}%
+}
+% \nusecbreaknopage{id}{rotulo}: mesma contabilidade do \nusecbreak, mas
+% sem forcar um \clearpage proprio -- para usar logo apos um comando que
+% ja quebra a pagina por conta propria (ex. \tableofcontents, via
+% \chapter*), evitando dois \clearpage consecutivos.
+\newcommand{\nusecbreaknopage}[2]{%
+  \nuwritesectotal
+  \setcounter{secpg}{1}%
+  \gdef\nucursecid{#1}%
+  \gdef\nucurseclabel{#2}%
+}
+\AtEndDocument{\nuwritesectotal}
+\AtBeginShipout{\stepcounter{secpg}}
+
+% \apref{destino}{X}: referencia cruzada para "Apendice X", clicavel ate
+% o \hypertarget{destino}{} colocado no \section*{...} do apendice em
+% questao. Os apendices usam \section* (nao numerado, mantendo o padrao
+% do documento) -- e por isso NAO usamos aqui \label + \hyperref[label]:
+% \section* nao chama \refstepcounter, entao hyperref nao cria uma ancora
+% propria naquele ponto, e um \label logo depois acaba "herdando" a
+% ancora do ultimo elemento numerado anterior (ex. a ultima tabela da
+% secao anterior) -- o link resultante levaria para o lugar errado
+% (confirmado: apontava para uma tabela da Se\c{c}\~ao 1.8, nao para o
+% inicio do Ap\^endice). \hypertarget/\hyperlink cria e aponta para uma
+% ancora independente de contadores, resolvendo isso. O texto "Apendice
+% X" e escrito literalmente (n\~ao vem de \ref/contador). hidelinks (ja
+% carregado via hyperref no main.tex) mantem o link sem cor/caixa
+% visivel, igual ao \citep existente.
+\newcommand{\apref}[2]{\hyperlink{#1}{Ap\^endice~#2}}
+
+\newcommand{\nufooterpage}{\thesecpg~de~\nugetsectotal{\nucursecid}}
+
+\newcommand{\nurunninghead}{%
+  \footnotesize\sffamily\textcolor{nugray}{\doccode}\hfill\textcolor{nugray}{\nucurseclabel\ -- Rev.~\docsecrev}%
+}
+
+% Fonte reduzida (\tiny) para caber em uma unica linha, como no
+% documento original -- em \footnotesize ou \scriptsize o aviso e mais
+% largo que a propria pagina (medido: ~481pt de 463pt disponiveis) e
+% sempre quebra em duas linhas. Mantido dentro de uma minipage (como na
+% versao anterior): sem ela, o texto passado diretamente a \fancyfoot
+% quebra a expansao de \listoftables/\listoffigures mais adiante no
+% documento (erro "Argument of \T1\' has an extra }" -- isolado e
+% confirmado em teste minimo).
+\newcommand{\nurunningfootnote}{%
+  \begin{minipage}[t]{0.85\textwidth}
+  \tiny\sffamily\textcolor{nugray}\raggedright
+  \'E proibida a duplica\c{c}\~ao ou reprodu\c{c}\~ao deste volume ou de parte do mesmo, sob quaisquer meios, sem autoriza\c{c}\~ao expressa da CNEN
+  \end{minipage}%
+}
+
+\fancyhead[C]{\nurunninghead}
+\fancyfoot[L]{\nurunningfootnote}
+\fancyfoot[R]{\footnotesize\sffamily\textcolor{nugray}{\nufooterpage}}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[C]{\nurunninghead}
+  \fancyfoot[L]{\nurunningfootnote}
+  \fancyfoot[R]{\footnotesize\sffamily\textcolor{nugray}{\nufooterpage}}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+% ---------------------------------------------------------------------
+% Titulos de capitulo/secao - sobrios, estilo relatorio tecnico (sem
+% os grandes blocos coloridos tipicos de "livro"; mais proximo de
+% relatorio corporativo/regulatorio)
+% ---------------------------------------------------------------------
+\RequirePackage{titlesec}
+
+% O titulo que \chapter{...} imprimiria normalmente e descartado aqui
+% (capturado num box que nunca e exibido): mantemos \chapter{} "por
+% baixo dos panos" -- ele ainda incrementa o contador do capitulo (do
+% qual depende a numeracao de pagina 1-1, 1-2... via chappg), gera a
+% entrada no Sumario, o marcador de rodape (\chaptermark) e o marcador
+% de PDF (hyperref) -- mas nada disso exige que o titulo seja
+% desenhado na pagina. Quem desenha o titulo visivel e \chapterbanner,
+% chamado manualmente logo em seguida no conteudo.
+\titleformat{\chapter}[block]
+  {\normalfont}{}{0pt}
+  {\setbox\z@\hbox\bgroup}
+  [\egroup]
+\titlespacing*{\chapter}{0pt}{0pt}{0pt}
+
+\newcommand{\chapterbanner}[2]{%
+  % #1 = numero do capitulo (ex. 1)  #2 = titulo do capitulo
+  \begingroup
+  \setlength{\parindent}{0pt}
+  \color{nurule}\rule{\textwidth}{1.4pt}\\[2pt]
+  {\sffamily\Large\bfseries CAP\'ITULO #1}\\[8pt]
+  {\sffamily\huge\bfseries #2}\\[2pt]
+  \color{nurule}\rule{\textwidth}{0.6pt}
+  \endgroup
+  \vspace{10pt}
+}
+
+\titleformat{\section}
+  {\normalfont\sffamily\large\bfseries\color{nurule}}
+  {\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{18pt}{8pt}
+
+\titleformat{\subsection}
+  {\normalfont\sffamily\bfseries\color{nurule}}
+  {\thesubsection}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+
+\RequirePackage{mdframed}
+
+% ---------------------------------------------------------------------
+% Tabelas em grade (estilo formulario NRC / DCD) + legendas
+% ---------------------------------------------------------------------
+\RequirePackage{array}
+\RequirePackage{longtable}
+\RequirePackage{caption}
+\captionsetup{labelfont={sf,bf,color=nurule},font=small,skip=4pt}
+
+% NOTA TECNICA: usamos `longtable` com colunas p{} de largura fixa (em
+% vez de colunas X de `tabularx`/`xltabular`). O algoritmo de
+% auto-dimensionamento das colunas X depende de uma varredura
+% (\TX@get@body) que busca literalmente o proximo "\end{xltabular}" no
+% fluxo de tokens; quando o ambiente xltabular e aberto/fechado dentro
+% de um \newenvironment (como fazemos abaixo, para padronizar as
+% tabelas de cada secao), essa varredura falha ("Runaway argument...
+% File ended while scanning use of \TX@get@body"). Colunas p{} fixas
+% nao tem essa limitacao e sao a escolha robusta aqui.
+
+% \nutablehdr agora aplica apenas o negrito por celula; a cor de fundo
+% do cabecalho e aplicada UMA vez por linha com \rowcolor (nao por
+% celula -- \rowcolor emite \noalign internamente e so pode aparecer
+% uma vez, no inicio da linha, sob pena de erro "Misplaced \noalign").
+\newcommand{\nutablehdr}[1]{\textbf{#1}}
+
+% Ambiente padronizado: tabela de requisitos de aceitacao
+\newenvironment{tabelaaceitacao}[2]{%
+  % #1 = numero (ex. 1.1)  #2 = titulo curto
+  \begin{longtable}{|>{\small\raggedright\arraybackslash}p{0.09\textwidth}|>{\small\raggedright\arraybackslash}p{0.82\textwidth}|}
+  \caption{Requisitos de aceita\c{c}\~ao -- Se\c{c}\~ao #1 (#2)}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{N\textordmasculine} & \nutablehdr{Crit\'erio de aceita\c{c}\~ao (NUREG-1537, Parte 2)} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{N\textordmasculine} & \nutablehdr{Crit\'erio de aceita\c{c}\~ao (continua\c{c}\~ao)} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Ambiente padronizado: tabela resumo dos pontos mais importantes
+\newenvironment{tabelaresumo}[2]{%
+  \begin{longtable}{|>{\small\raggedright\arraybackslash}p{0.28\textwidth}|>{\small\raggedright\arraybackslash}p{0.63\textwidth}|}
+  \caption{Resumo dos pontos mais importantes -- Se\c{c}\~ao #1 (#2)}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Ponto-chave} & \nutablehdr{Descri\c{c}\~ao / implica\c{c}\~ao para o RPAS} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Ponto-chave} & \nutablehdr{Descri\c{c}\~ao / implica\c{c}\~ao para o RPAS (continua\c{c}\~ao)} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Ambiente padronizado: tabela de apendices/referencias cruzadas a
+% verificar
+\newenvironment{tabelaapendices}[2]{%
+  \begin{longtable}{|>{\small\raggedright\arraybackslash}p{0.20\textwidth}|>{\small\raggedright\arraybackslash}p{0.55\textwidth}|>{\small\centering\arraybackslash}p{0.13\textwidth}|}
+  \caption{Ap\^endices e refer\^encias cruzadas a verificar -- Se\c{c}\~ao #1 (#2)}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Refer\^encia} & \nutablehdr{O que deve ser verificado} & \nutablehdr{Status} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Refer\^encia} & \nutablehdr{O que deve ser verificado (continua\c{c}\~ao)} & \nutablehdr{Status} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Ambiente padronizado: topicos especificos de uma Design Certificate
+% (10 CFR Parte 52), sem equivalente direto na NUREG-1537 (voltada a
+% reatores nao-de-potencia licenciados sob 10 CFR Parte 50)
+\newenvironment{tabeladc}{%
+  \begin{longtable}{|>{\small\raggedright\arraybackslash}p{0.22\textwidth}|>{\small\raggedright\arraybackslash}p{0.48\textwidth}|>{\small\raggedright\arraybackslash}p{0.22\textwidth}|}
+  \caption{T\'opicos espec\'ificos de uma Certifica\c{c}\~ao de Projeto
+    (\textit{Design Certificate}), sem equivalente direto na
+    NUREG-1537}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{T\'opico} & \nutablehdr{Descri\c{c}\~ao / requisito} & \nutablehdr{Base regulat\'oria} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{T\'opico} & \nutablehdr{Descri\c{c}\~ao / requisito (continua\c{c}\~ao)} & \nutablehdr{Base regulat\'oria} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Ambiente padronizado: lista de verificacao consolidada (Apendice A),
+% com origem NUREG-1537 / ISG-NUREG-1537, referencia cruzada no texto
+% principal (preenchida em versao futura) e resumo de atendimento.
+\newenvironment{tabelaverificacao}{%
+  \small\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.05}
+  \begin{longtable}{|>{\scriptsize\centering\arraybackslash}p{0.045\textwidth}|>{\small\raggedright\arraybackslash}p{0.335\textwidth}|>{\scriptsize\raggedright\arraybackslash}p{0.135\textwidth}|>{\scriptsize\raggedright\arraybackslash}p{0.125\textwidth}|>{\scriptsize\raggedright\arraybackslash}p{0.125\textwidth}|>{\scriptsize\centering\arraybackslash}p{0.065\textwidth}|}
+  \caption{Lista de verifica\c{c}\~ao consolidada -- Cap\'itulo 1}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Item} & \nutablehdr{Crit\'erio} & \nutablehdr{Origem} & \nutablehdr{Ref.\ no RPAS} & \nutablehdr{Atendimento} & \nutablehdr{ISG?} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Item} & \nutablehdr{Crit\'erio (continua\c{c}\~ao)} & \nutablehdr{Origem} & \nutablehdr{Ref.\ no RPAS} & \nutablehdr{Atendimento} & \nutablehdr{ISG?} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Ambiente padronizado: lista de legislacao federal aplicavel
+% (10 CFR) -- Apendice B
+\newenvironment{tabelalegislacao}{%
+  \small\setlength{\tabcolsep}{4pt}
+  \begin{longtable}{|>{\small\raggedright\arraybackslash}p{0.17\textwidth}|>{\small\raggedright\arraybackslash}p{0.34\textwidth}|>{\small\raggedright\arraybackslash}p{0.13\textwidth}|>{\small\raggedright\arraybackslash}p{0.20\textwidth}|}
+  \caption{Legisla\c{c}\~ao federal (10~CFR) aplic\'avel -- Cap\'itulo 1}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Dispositivo} & \nutablehdr{Assunto / aplica\c{c}\~ao a este RPAS} & \nutablehdr{Origem} & \nutablehdr{Equivalente brasileiro} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Dispositivo} & \nutablehdr{Assunto / aplica\c{c}\~ao (continua\c{c}\~ao)} & \nutablehdr{Origem} & \nutablehdr{Equivalente brasileiro} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% Caixa de avaliacao quanto ao ISG-NUREG-1537 (Interim Staff Guidance
+% inserida ao final de cada secao 1.1-1.8
+\newmdenv[
+  linecolor=nugray,
+  linewidth=0.7pt,
+  backgroundcolor=white,
+  topline=false, bottomline=false, rightline=false,
+  leftline=true, linewidth=2.2pt, innerleftmargin=8pt,
+  innerrightmargin=6pt, innertopmargin=5pt, innerbottommargin=5pt,
+  skipabove=8pt, skipbelow=4pt
+]{interimbox}
+
+\newenvironment{avaliacaointerim}{%
+  \begin{interimbox}\small
+  \noindent{\sffamily\bfseries\color{nugray}AVALIA\c{C}\~AO QUANTO AO ISG-NUREG-1537}\par\smallskip
+}{%
+  \end{interimbox}
+}
+
+% Ambiente padronizado: tabela do Anexo de metodologia, mapeando cada
+% se\c{c}\~ao deste esbo\c{c}o \`as partes da NUREG-1537 das quais deriva
+% (ou \`a s\'intese pr\'opria, quando n\~ao h\'a base direta na norma)
+\newenvironment{tabelametodologia}{%
+  \begin{longtable}{|>{\small\centering\arraybackslash}p{0.065\textwidth}|>{\small\raggedright\arraybackslash}p{0.230\textwidth}|>{\small\raggedright\arraybackslash}p{0.230\textwidth}|>{\small\raggedright\arraybackslash}p{0.355\textwidth}|}
+  \caption{Correspond\^encia entre as se\c{c}\~oes deste esbo\c{c}o e a
+    NUREG-1537}\\
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Se\c{c}\~ao} & \nutablehdr{Texto corrido -- base} & \nutablehdr{Tabela de aceita\c{c}\~ao -- base} & \nutablehdr{Elementos de s\'intese pr\'opria (sem base direta na NUREG-1537)} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{nutablehead}\nutablehdr{Se\c{c}\~ao} & \nutablehdr{Texto corrido -- base} & \nutablehdr{Tabela de aceita\c{c}\~ao -- base} & \nutablehdr{Elementos de s\'intese pr\'opria (continua\c{c}\~ao)} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+}{%
+  \hline
+  \end{longtable}
+}
+
+% ---------------------------------------------------------------------
+% Caixa de nota/ressalva (usada, por exemplo, na Se\c{c}\~ao 1.7)
+% ---------------------------------------------------------------------
+\newmdenv[
+  linecolor=nurule,
+  linewidth=0.9pt,
+  backgroundcolor=white,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=10pt, skipbelow=10pt
+]{notabox}
+
+\newenvironment{notaregulatoria}[1]{%
+  \begin{notabox}\small
+  \noindent{\sffamily\bfseries\color{nurule}NOTA REGULAT\'ORIA -- #1}\par\smallskip
+}{%
+  \end{notabox}
+}
+
+% ---------------------------------------------------------------------
+% Caixa de observacao de trabalho: usada para registrar decisoes
+% editoriais, pendencias ou combinados sobre COMO uma secao sera
+% redigida/usada (diferente de "notaregulatoria", que e uma ressalva
+% sobre o conteudo regulatorio, e de "avaliacaointerim", que e a
+% avaliacao fixa quanto ao ISG-NUREG-1537 ao final de cada secao 1.1-1.8).
+% Fundo levemente sombreado para se distinguir visualmente das outras
+% duas caixas (que tem fundo branco).
+% ---------------------------------------------------------------------
+\newmdenv[
+  linecolor=nugray,
+  linewidth=0.6pt,
+  backgroundcolor=nutablehead!35,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=10pt, skipbelow=10pt
+]{obsbox}
+
+\newenvironment{observacao}[1]{%
+  \begin{obsbox}\small
+  \noindent{\sffamily\bfseries\color{nugray}OBSERVA\c{C}\~AO -- #1}\par\smallskip
+}{%
+  \end{obsbox}
+}
+
+% ---------------------------------------------------------------------
+% Sumario com estilo mais compacto/tecnico
+% ---------------------------------------------------------------------
+\RequirePackage{tocloft}
+\renewcommand{\cfttoctitlefont}{\sffamily\Large\bfseries\color{nurule}}
+\renewcommand{\cftchapfont}{\sffamily\bfseries}
+\renewcommand{\cftsecfont}{\sffamily}
+\renewcommand{\cftchappagefont}{\sffamily\bfseries}
+\renewcommand{\cftsecpagefont}{\sffamily}
+
+% Lista de Tabelas / Lista de Figuras: por padrao o tocloft usa o estilo
+% de \chapter* do book (titulo grande, serifado) para o titulo, e o
+% tamanho normal do corpo (14pt nesta classe) para cada entrada -- bem
+% maior e visualmente destoante do restante do documento (que e
+% sans-serif/compacto). Alinhado ao mesmo estilo do titulo do Sumario
+% (\cfttoctitlefont) e reduzido para \small nas entradas.
+\renewcommand{\cftlottitlefont}{\sffamily\Large\bfseries\color{nurule}}
+\renewcommand{\cftloftitlefont}{\sffamily\Large\bfseries\color{nurule}}
+\renewcommand{\cfttabfont}{\small\sffamily}
+\renewcommand{\cftfigfont}{\small\sffamily}
+\renewcommand{\cfttabpagefont}{\small\sffamily}
+\renewcommand{\cftfigpagefont}{\small\sffamily}
+
+\endinput

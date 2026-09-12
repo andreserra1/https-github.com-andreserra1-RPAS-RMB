@@ -1,0 +1,76 @@
+% =====================================================================
+% main.tex
+% Proposta (em portugues) de Capitulo 1 de um Relatorio Preliminar de
+% Analise de Seguranca (RPAS) / Preliminary Safety Analysis Report
+% (PSAR), no estilo grafico e editorial das publicacoes do U.S. NRC
+% (NUREG-1537, Partes 1 e 2) e do AP1000 Design Control Document (DCD).
+%
+% Este e um documento de TRABALHO / MINUTA elaborado pelo requerente
+% (nao e uma publicacao oficial do NRC).
+% =====================================================================
+% extbook (do pacote extsizes) e um substituto direto de "book" que
+% aceita tamanhos de fonte alem de 10/11/12pt (aqui, 14pt) mantendo
+% \small, \large etc. corretamente recalculados para esse tamanho.
+\documentclass[14pt,letterpaper,oneside]{extbook}
+
+\usepackage{sty/nureg-style}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage[hidelinks,colorlinks=false]{hyperref}
+\usepackage[round,authoryear]{natbib}
+\usepackage{enumitem}
+\setlist[itemize]{topsep=2pt,itemsep=2pt,parsep=0pt}
+
+% Cabecalho da lista de referencias: por padrao o natbib usa
+% \chapter*{\bibname} (titulo discreto, sem destaque). Substituimos por
+% um cabecalho no mesmo estilo do \chapterbanner usado no Capitulo 1
+% (regua + titulo grande em negrito + regua), maior e em negrito.
+\renewcommand{\bibsection}{%
+  \begingroup
+  \setlength{\parindent}{0pt}
+  \color{nurule}\rule{\textwidth}{1.4pt}\\[2pt]
+  {\sffamily\LARGE\bfseries \bibname}\\[2pt]
+  \color{nurule}\rule{\textwidth}{0.6pt}
+  \endgroup
+  \vspace{14pt}
+  \addcontentsline{toc}{chapter}{\bibname}
+}
+
+\title{Proposta de Cap\'itulo 1 do RPAS}
+\author{}
+\date{}
+
+\begin{document}
+
+\frontmatter
+\input{content/foto_capa.tex}
+\input{content/capa.tex}
+
+\pagestyle{plain}
+\nusecbreaknopage{toc}{Sum\'ario}
+\tableofcontents
+
+\nusecbreak{lot}{Lista de Tabelas}
+\listoftables
+
+\nusecbreak{lof}{Lista de Figuras}
+\listoffigures
+\nuwritesectotal
+
+\mainmatter
+\gdef\nucursecid{}
+\input{content/cap1.tex}
+
+\input{content/apendice_a_checklist.tex}
+\input{content/apendice_b_legislacao.tex}
+\input{content/apendice_c_dec.tex}
+
+\input{content/anexo.tex}
+
+\pagestyle{plain}
+\nusecbreak{refs}{Refer\^encias Bibliogr\'aficas}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
